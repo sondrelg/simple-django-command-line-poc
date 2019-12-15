@@ -19,13 +19,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         decouple_imported = False
-        env_exists =
         try:
-            # Read settings
+            # Read settings and check whether imports have been made
             with open(settings_path, 'rb') as f:
                 content = f.readlines()
                 for line in content:
-                    if
+                    if b'from decouple import config' in line:
+                        decouple_imported = True
+
             # Check for .env variable
             if os.path.isfile(root_folder + '/.env'):
                 with open(root_folder + '/.env', 'rb') as env:
@@ -41,7 +42,8 @@ class Command(BaseCommand):
                     print('-- Added .env file to your project, with the variable `ADFS_CLIENT_SECRET`.')
 
             # Check for import
-            if "from decouple import config" not in content:
+            print(decouple_imported)
+            if not decouple_imported:
                 with open(settings_path, 'wb') as settings_file:
                     for line in content:
                         if line[:6] == b"import":
